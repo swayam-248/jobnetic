@@ -129,7 +129,7 @@ cp .env.example .env
 npm run dev
 ```
 
-**3. Set up the frontend**
+**3. Setting up the frontend**
 ```bash
 cd client
 npm install
