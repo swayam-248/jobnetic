@@ -6,12 +6,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <main className="mx-auto max-w-2xl px-4 pt-20 pb-16 text-center flex flex-col items-center">
         {/* Badge */}
-        <div className="inline-flex items-center rounded-full bg-brand-100 px-3.5 py-1.5 text-xs font-semibold text-brand-800 uppercase tracking-wider">
+        <div className="inline-flex items-center rounded-full bg-brand-100 px-3.5 py-1.5 text-xs font-semibold text-brand-800 tracking-wider">
           ✦ AI-powered job matching for students
         </div>
 
         {/* Headline */}
-        <h1 className="mt-8 text-4xl font-medium tracking-tight text-gray-900 sm:text-5xl">
+        <h1 className="mt-8 text-3xl md:text-4xl font-medium tracking-tight text-gray-900">
           Find jobs that fit you.
           <span className="block mt-1 text-brand-500">Not just your keywords.</span>
         </h1>
@@ -22,11 +22,11 @@ export default function LandingPage() {
         </p>
 
         {/* CTA Buttons */}
-        <div className="mt-10 flex flex-row items-center justify-center gap-4">
-          <Link to="/register" className="btn-primary text-sm flex items-center">
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          <Link to="/register" className="btn-primary text-sm flex items-center justify-center w-full sm:w-auto">
             Start for free <span className="ml-1">↗</span>
           </Link>
-          <a href="#how-it-works" className="btn-ghost text-sm">
+          <a href="#how-it-works" className="btn-ghost text-sm flex items-center justify-center w-full sm:w-auto">
             See how it works
           </a>
         </div>
@@ -39,7 +39,7 @@ export default function LandingPage() {
 
       {/* SECTION 1 — STATS ROW */}
       <section className="border-t border-b border-gray-100 py-10 px-6 max-w-3xl mx-auto">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Stat 1 */}
           <div className="text-center bg-gray-50 rounded-xl p-6">
             <span className="text-2xl font-medium text-brand-500 block">10k+</span>
@@ -165,6 +165,66 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* SECTION 4 — NOTIFICATION PREVIEW */}
+      <section className="border-b border-gray-100 py-12 px-6 max-w-3xl mx-auto">
+        <span className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-6 block">
+          STAY AHEAD WITH ALERTS
+        </span>
+        <div className="card flex flex-row items-start gap-4">
+          <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-lg" role="img" aria-label="bell">🔔</span>
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-gray-900">New high-match job found</h3>
+            <p className="mt-1 text-sm text-gray-500 leading-relaxed">
+              Swiggy is hiring a React Intern in Bangalore — <span className="font-medium text-brand-500">91% match</span> with your profile. Applied before 47 others.
+            </p>
+            <span className="mt-2 text-xs text-gray-400 block">Sent by Jobnetic · 7:02 AM today</span>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 — FINAL CTA */}
+      <section className="py-16 px-6 max-w-2xl mx-auto text-center flex flex-col items-center">
+        <h2 className="text-2xl font-medium text-gray-900 tracking-tight mb-3">
+          Your next offer starts here.
+        </h2>
+        <p className="text-base text-gray-500 leading-relaxed mb-8 max-w-md mx-auto">
+          Know your fit before you apply. Get notified the moment the right role shows up.
+        </p>
+        <Link to="/register" className="btn-primary text-base px-8 py-3 inline-block">
+          Create free account ↗
+        </Link>
+        <p className="mt-4 text-xs text-gray-400">
+          Free forever for students · Built for placement season
+        </p>
+      </section>
+
+      {/* SECTION 6 — FOOTER */}
+      <footer className="border-t border-gray-100 py-6 px-6 max-w-5xl mx-auto flex flex-col sm:flex-row gap-3 sm:gap-0 items-center justify-between text-center sm:text-left">
+        <p className="text-sm text-gray-400">
+          © 2025 Jobnetic. All rights reserved.
+        </p>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/swayam-248/jobnetic"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-400 hover:text-brand-500 transition-colors"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://linkedin.com/in/swayam-sahore"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-400 hover:text-brand-500 transition-colors"
+          >
+            LinkedIn
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }
