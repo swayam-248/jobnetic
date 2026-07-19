@@ -129,7 +129,7 @@ cp .env.example .env
 npm run dev
 ```
 
-**3. Setting up the frontend**
+**3. Set up the frontend**
 ```bash
 cd client
 npm install
@@ -182,7 +182,8 @@ VITE_API_URL=http://localhost:5000/api
 - [x] Project setup and architecture
 - [x] MongoDB Atlas + Supabase connected
 - [x] JWT authentication (register/login)
-- [ ] Landing page
+- [x] Landing page (hero, stats, job card preview, how it works, alerts, CTA, footer)
+- [x] Login and Register pages with auth wiring
 - [ ] Onboarding flow (resume upload + preferences)
 - [ ] Job listings dashboard
 - [ ] Match score engine
@@ -209,4 +210,4 @@ This project is licensed under the MIT License.
 
 ---
 
-*Built as a major project during B.E. Computer Science Engineering, Chitkara University (Batch 2024)*
+*Built as a major project during B.E. Computer Science Engineering, Chitkara University*
