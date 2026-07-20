@@ -1,8 +1,16 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { token, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/90 backdrop-blur-sm">
@@ -17,12 +25,25 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex md:items-center md:space-x-3">
-            <Link to="/login" className="btn-ghost text-sm text-center">
-              Log in
-            </Link>
-            <Link to="/register" className="btn-primary text-sm text-center">
-              Get started
-            </Link>
+            {token ? (
+              <>
+                <Link to="/dashboard" className="text-sm font-medium text-gray-600 hover:text-brand-500">
+                  Dashboard
+                </Link>
+                <button onClick={handleLogout} className="btn-ghost text-sm">
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn-ghost text-sm text-center">
+                  Log in
+                </Link>
+                <Link to="/register" className="btn-primary text-sm text-center">
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -67,20 +88,43 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden border-b border-gray-100 bg-white shadow-sm" id="mobile-menu">
           <div className="flex flex-col space-y-3 px-4 pt-2 pb-6">
-            <Link
-              to="/login"
-              onClick={() => setIsOpen(false)}
-              className="btn-ghost text-sm text-center block w-full"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/register"
-              onClick={() => setIsOpen(false)}
-              className="btn-primary text-sm text-center block w-full"
-            >
-              Get started
-            </Link>
+            {token ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="text-sm font-medium text-gray-600 hover:text-brand-500 text-center py-2"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsOpen(false)
+                    handleLogout()
+                  }}
+                  className="btn-ghost text-sm text-center block w-full"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="btn-ghost text-sm text-center block w-full"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsOpen(false)}
+                  className="btn-primary text-sm text-center block w-full"
+                >
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
