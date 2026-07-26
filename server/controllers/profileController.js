@@ -1,6 +1,5 @@
 const supabase = require('../config/supabase.js');
-const pdfParse = require('pdf-parse');
-
+const pdfParse = require('pdf-parse')
 /**
  * @desc    Upload resume, parse PDF text, and upsert profile in Supabase
  * @route   POST /api/profile/resume
