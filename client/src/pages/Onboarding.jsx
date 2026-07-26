@@ -1,5 +1,10 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  uploadResume,
+  savePreferences,
+  completeOnboarding,
+} from "../services/api";
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -11,8 +16,40 @@ export default function Onboarding() {
     minSalary: "",
   });
 
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+
+  const handleComplete = async () => {
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      // Step 1: Upload resume
+      await uploadResume(resumeFile);
+
+      // Step 2: Save preferences
+      await savePreferences({
+        targetRole: preferences.targetRole,
+        location: preferences.location,
+        jobType: preferences.jobType,
+        minSalary: preferences.minSalary,
+      });
+
+      // Step 3: Mark onboarding complete
+      await completeOnboarding();
+
+      // Step 4: Redirect to dashboard
+      navigate("/dashboard");
+    } catch (err) {
+      setSubmitError(
+        err.response?.data?.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleChange = (e) => {
     setPreferences({ ...preferences, [e.target.name]: e.target.value });
@@ -270,16 +307,23 @@ export default function Onboarding() {
               </div>
             </div>
 
+            {submitError && (
+              <p className="text-red-500 text-sm text-center mt-3">
+                {submitError}
+              </p>
+            )}
+
             {/* Step 3 Buttons */}
             <div className="flex gap-3 mt-6">
               <button onClick={() => setStep(2)} className="btn-ghost flex-1">
                 Back
               </button>
               <button
-                onClick={() => navigate("/dashboard")}
-                className="btn-primary flex-1"
+                onClick={handleComplete}
+                disabled={submitting}
+                className="btn-primary flex-1 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Complete setup
+                {submitting ? "Setting up your profile..." : "Complete setup"}
               </button>
             </div>
           </div>

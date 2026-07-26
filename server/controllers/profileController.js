@@ -64,22 +64,73 @@ exports.uploadResume = async (req, res) => {
 };
 
 /**
- * @desc    Save job preferences (placeholder for Day 9)
+ * @desc    Save job preferences
  * @route   POST /api/profile/preferences
  * @access  Private
  */
 exports.savePreferences = async (req, res) => {
-  res.json({ message: 'coming soon' });
-};
+  try {
+    const userId = req.user._id.toString()
+    const { targetRole, location, jobType, minSalary } = req.body
+
+    // Validate required fields
+    if (!targetRole || !location || !jobType) {
+      return res.status(400).json({ 
+        message: 'Target role, location and job type are required' 
+      })
+    }
+
+    // Upsert to preferences table
+    const { data, error } = await supabase
+      .from('preferences')
+      .upsert({
+        user_id: userId,
+        target_role: targetRole,
+        locations: [location],
+        job_type: jobType,
+        min_salary: minSalary ? parseInt(minSalary) : 0,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' })
+
+    if (error) {
+      return res.status(500).json({ message: error.message })
+    }
+
+    res.json({ message: 'Preferences saved successfully' })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
 
 /**
- * @desc    Complete onboarding flow (placeholder for Day 9)
+ * @desc    Complete onboarding flow
  * @route   PATCH /api/profile/complete
  * @access  Private
  */
 exports.completeOnboarding = async (req, res) => {
-  res.json({ message: 'coming soon' });
-};
+  try {
+    const userId = req.user._id.toString()
+    const userName = req.user.name 
+
+
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({
+        user_id: userId,
+        full_name: userName,
+        onboarding_complete: true,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' })
+
+    if (error) {
+      return res.status(500).json({ message: error.message })
+    }
+
+    res.json({ message: 'Onboarding complete' })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
 
 /**
  * @desc    Get user profile from Supabase
@@ -89,6 +140,8 @@ exports.completeOnboarding = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const userId = req.user._id.toString();
+    const userEmail = req.user.email
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')

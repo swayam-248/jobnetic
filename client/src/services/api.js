@@ -28,3 +28,22 @@ api.interceptors.response.use(
 )
 
 export default api
+
+// Profile API calls
+export const uploadResume = (file) => {
+  const formData = new FormData()
+  formData.append('resume', file)
+  return api.post('/profile/resume', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+export const savePreferences = (preferences) =>
+  api.post('/profile/preferences', preferences)
+
+export const completeOnboarding = () =>
+  api.patch('/profile/complete')
+
+export const getProfile = () =>
+  api.get('/profile/me')
+
