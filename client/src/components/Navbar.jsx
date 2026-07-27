@@ -1,8 +1,15 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
+  const location = useLocation()
+
+  // Hide Navbar completely on /onboarding route
+  if (location.pathname === '/onboarding') {
+    return null
+  }
+
   const [isOpen, setIsOpen] = useState(false)
   const { token, logout } = useAuth()
   const navigate = useNavigate()

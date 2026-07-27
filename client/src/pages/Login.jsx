@@ -38,6 +38,7 @@ export default function Login() {
 
   
 
+  // Handle login submit and redirect based on onboarding_complete status from response
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
@@ -46,17 +47,14 @@ export default function Login() {
         email: formData.email,
         password: formData.password,
       });
-      console.log("Login success:", data);
-      if (data?.user?.onboarding_complete === false) {
-        navigate("/onboarding");
-      } else {
+      // data.user now has onboarding_complete from Supabase
+      if (data?.user?.onboarding_complete === true) {
         navigate("/dashboard");
+      } else {
+        navigate("/onboarding");
       }
     } catch (err) {
-      console.log("Login error:", err);
-      console.log("Error response:", err.response);
       setError(err.response?.data?.message || "Invalid email or password");
-      console.log("Error set, should show now");
     } finally {
       setLoading(false);
     }

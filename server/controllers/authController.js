@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+const supabase = require('../config/supabase.js') // Added Supabase client import
 
 const signToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -42,29 +43,45 @@ const register = async (req, res, next) => {
   }
 }
 
+// Updated login function to fetch user profile from Supabase and include onboarding_complete in the response
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
+
+    // Find user in MongoDB
     const user = await User.findOne({ email })
-
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' })
+      return res.status(401).json({ message: 'Invalid credentials' })
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password)
-
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' })
+      return res.status(401).json({ message: 'Invalid credentials' })
     }
 
+    // Fetch profile from Supabase to get onboarding_complete
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('user_id', user._id.toString())
+      .single()
+
+    // Generate token
     const token = signToken(user._id)
 
+    // Return token + user + onboarding status
     res.json({
       token,
-      user: formatUser(user),
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        onboarding_complete: profile?.onboarding_complete ?? false,
+      },
     })
-  } catch (error) {
-    next(error)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
   }
 }
 
@@ -77,3 +94,4 @@ module.exports = {
   login,
   getMe,
 }
+
