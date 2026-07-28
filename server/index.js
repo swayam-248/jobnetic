@@ -20,6 +20,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/profile', require('./routes/profileRoutes'))
+app.use('/api/jobs', require('./routes/jobRoutes'))
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500
