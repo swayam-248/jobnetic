@@ -47,3 +47,12 @@ export const completeOnboarding = () =>
 export const getProfile = () =>
   api.get('/profile/me')
 
+// Fetch jobs from backend
+export const fetchJobs = (params = {}) =>
+  api.get('/jobs', { params })
+
+// Trigger job fetch from JSearch for current user
+export const triggerJobFetch = () =>
+  api.post('/jobs/fetch')
+
+
