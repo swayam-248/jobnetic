@@ -30,7 +30,6 @@ exports.fetchAndStoreJobs = async (req, res) => {
     const searchQuery = `${query} in ${location}`
 
     // 3. Fetch from JSearch API
-    // 3. Fetch from JSearch API
     const response = await jsearchClient.get('/search-v2', {
       params: {
         query: searchQuery,
@@ -43,14 +42,10 @@ exports.fetchAndStoreJobs = async (req, res) => {
       },
     })
 
-    console.log('Full response keys:', Object.keys(response.data))
-console.log('Data type:', typeof response.data?.data)
-console.log('Response sample:', JSON.stringify(response.data).slice(0, 500))
-
-    console.log('JSearch response status:', response.status)
-    console.log('Jobs found:', response.data?.data?.length || 0)
-
-    const jobs = response.data?.data?.jobs || []
+    const responseData = response.data?.data
+    const jobs = Array.isArray(responseData)
+      ? responseData
+      : responseData?.jobs || []
 
     if (jobs.length === 0) {
       return res.json({ message: 'No jobs found', count: 0, jobs: [] })
