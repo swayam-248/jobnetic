@@ -122,7 +122,15 @@ exports.getStoredJobs = async (req, res) => {
 
     // Build filter
     const filter = {}
-    if (role) filter.job_title = { $regex: role, $options: 'i' }
+    // Search across title, employer name, description, and required skills
+    if (role) {
+      filter.$or = [
+        { job_title: { $regex: role, $options: 'i' } },
+        { employer_name: { $regex: role, $options: 'i' } },
+        { job_description: { $regex: role, $options: 'i' } },
+        { job_required_skills: { $regex: role, $options: 'i' } },
+      ]
+    }
     if (location) filter.job_city = { $regex: location, $options: 'i' }
     if (type) filter.job_employment_type = { $regex: type, $options: 'i' }
 
