@@ -86,17 +86,37 @@ jobnetic/
 ├── client/                    ← React frontend
 │   └── src/
 │       ├── components/
+│       │   ├── Navbar.jsx
+│       │   └── JobCard.jsx
 │       ├── pages/
+│       │   ├── LandingPage.jsx
+│       │   ├── Login.jsx
+│       │   ├── Register.jsx
+│       │   ├── Onboarding.jsx
+│       │   └── Dashboard.jsx
 │       ├── context/           ← Auth context
 │       ├── hooks/
 │       ├── services/          ← Axios API layer
 │       └── utils/
 ├── server/                    ← Express backend
-│   ├── config/                ← DB connections
+│   ├── config/
+│   │   ├── db.js              ← MongoDB connection
+│   │   ├── supabase.js        ← Supabase client
+│   │   └── jsearch.js         ← JSearch API client
 │   ├── controllers/
-│   ├── middleware/            ← JWT auth
-│   ├── models/                ← Mongoose schemas
+│   │   ├── authController.js
+│   │   ├── profileController.js
+│   │   └── jobController.js
+│   ├── middleware/
+│   │   ├── authMiddleware.js  ← JWT protect
+│   │   └── upload.js          ← Multer PDF upload
+│   ├── models/
+│   │   ├── User.js            ← Mongoose user schema
+│   │   └── Job.js             ← Mongoose job schema
 │   └── routes/
+│       ├── authRoutes.js
+│       ├── profileRoutes.js
+│       └── jobRoutes.js
 └── README.md
 ```
 
@@ -159,6 +179,8 @@ JWT_SECRET=your_jwt_secret_key
 JWT_EXPIRES_IN=7d
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+JSEARCH_API_KEY=your_rapidapi_key
+JSEARCH_API_HOST=jsearch.p.rapidapi.com
 ```
 
 ### client/.env
@@ -168,11 +190,38 @@ VITE_API_URL=http://localhost:5000/api
 
 ---
 
+## API Routes
+
+### Auth
+```
+POST   /api/auth/register     → Register new user
+POST   /api/auth/login        → Login + get JWT
+GET    /api/auth/me           → Get current user (protected)
+```
+
+### Profile
+```
+POST   /api/profile/resume    → Upload PDF resume to Supabase
+POST   /api/profile/preferences → Save job preferences
+PATCH  /api/profile/complete  → Mark onboarding complete
+GET    /api/profile/me        → Get full profile
+```
+
+### Jobs
+```
+POST   /api/jobs/fetch        → Fetch jobs from JSearch + store in MongoDB
+GET    /api/jobs              → Get stored jobs with filters + pagination
+```
+
+---
+
 ## Supabase Tables
 
 ```sql
--- profiles, preferences, applications, notifications
--- See /server/config/supabase-schema.sql for full schema
+profiles      → user_id, full_name, resume_url, parsed_resume_text, onboarding_complete
+preferences   → user_id, target_role, locations[], job_type, min_salary
+applications  → user_id, job_title, company, status, notes
+notifications → user_id, message, type, read
 ```
 
 ---
@@ -184,12 +233,16 @@ VITE_API_URL=http://localhost:5000/api
 - [x] JWT authentication (register/login)
 - [x] Landing page (hero, stats, job card preview, how it works, alerts, CTA, footer)
 - [x] Login and Register pages with auth wiring
-- [ ] Onboarding flow (resume upload + preferences)
-- [ ] Job listings dashboard
-- [ ] Match score engine
-- [ ] n8n job fetch workflow
+- [x] Onboarding flow (resume upload → Supabase Storage, preferences → DB, complete flag)
+- [x] Smart login redirect based on onboarding status
+- [x] JSearch API integration (fetch + store jobs in MongoDB)
+- [x] Jobs dashboard with real job cards
+- [x] Job filters (role, location, type) + pagination
+- [ ] Match score engine (resume vs job description)
+- [ ] Job detail page with AI actions
+- [ ] n8n automation workflows
 - [ ] Gemini AI pipeline (cover letter, resume tailor, gap analysis)
-- [ ] Application tracker (Kanban)
+- [ ] Application tracker (Kanban board)
 - [ ] Email alert system
 - [ ] Deployment (Vercel + Render)
 
