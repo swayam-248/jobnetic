@@ -136,7 +136,7 @@ jobnetic/
 - Supabase account
 - n8n account
 - Google Gemini API key
-- RapidAPI account with JSearch API access
+- RapidAPI account with J-Search API access
 
 ### Installation
 
