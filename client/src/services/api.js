@@ -55,4 +55,8 @@ export const fetchJobs = (params = {}) =>
 export const triggerJobFetch = () =>
   api.post('/jobs/fetch')
 
+export const getJobById = (id) =>
+  api.get(`/jobs/${id}`)
+
+
 

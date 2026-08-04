@@ -1,10 +1,13 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 /**
  * JobCard Component
  * Displays job details including title, company, location, salary, skills, posted date, and apply link.
  */
 export default function JobCard({ job }) {
+  const navigate = useNavigate()
+
   if (!job) return null
 
   // Format location
@@ -95,7 +98,10 @@ export default function JobCard({ job }) {
       <div className="mt-4 flex items-center justify-between">
         <span className="text-xs text-gray-400">{postedDateText}</span>
         <div className="flex items-center gap-2">
-          <button className="btn-ghost text-sm py-1.5 px-3">
+          <button 
+            onClick={() => navigate(`/jobs/${job._id}`)} 
+            className="btn-ghost text-sm py-1.5 px-3"
+          >
             View details
           </button>
           {job.job_apply_link && (

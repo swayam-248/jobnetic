@@ -6,6 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import Register from "./pages/Register";
+import JobDetail from "./pages/JobDetail";
 
 function ProtectedRoute({ children }) {
   const { token, loading } = useAuth();
@@ -42,6 +43,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs/:id"
+          element={
+            <ProtectedRoute>
+              <JobDetail />
             </ProtectedRoute>
           }
         />
