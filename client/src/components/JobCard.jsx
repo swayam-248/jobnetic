@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
  * JobCard Component
  * Displays job details including title, company, location, salary, skills, posted date, and apply link.
  */
-export default function JobCard({ job }) {
+export default function JobCard({ job, matchScore, scoresLoading }) {
   const navigate = useNavigate()
 
   if (!job) return null
@@ -32,10 +32,18 @@ export default function JobCard({ job }) {
     ? `Posted ${new Date(job.job_posted_at).toLocaleDateString()}`
     : 'Recently posted'
 
-  // Display top 5 skills
-  const skillsToDisplay = Array.isArray(job.job_required_skills)
-    ? job.job_required_skills.slice(0, 5)
-    : []
+  // Match score styles helpers
+  const getScoreColor = (score) => {
+    if (score >= 70) return 'text-green-600'
+    if (score >= 40) return 'text-amber-500'
+    return 'text-gray-400'
+  }
+
+  const getScoreBg = (score) => {
+    if (score >= 70) return 'bg-green-50 border-green-100'
+    if (score >= 40) return 'bg-amber-50 border-amber-100'
+    return 'bg-gray-50 border-gray-100'
+  }
 
   return (
     <div className="card hover:shadow-md transition-shadow border-l-4 border-brand-500 rounded-l-none">
@@ -68,8 +76,20 @@ export default function JobCard({ job }) {
           )}
         </div>
 
-        {/* Right Column: Salary */}
-        <div className="flex-shrink-0 ml-4 text-right">
+        {/* Right Column: Score Badge & Salary */}
+        <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-4">
+          {scoresLoading ? (
+            // Loading skeleton for score
+            <div className="w-14 h-10 bg-gray-100 rounded-lg animate-pulse flex-shrink-0" />
+          ) : matchScore ? (
+            <div className={`flex-shrink-0 text-right border rounded-lg px-3 py-1.5 ${getScoreBg(matchScore.score)}`}>
+              <p className={`text-lg font-medium leading-none ${getScoreColor(matchScore.score)}`}>
+                {matchScore.score}%
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">match</p>
+            </div>
+          ) : null}
+
           {salaryText ? (
             <span className="text-sm font-medium text-gray-900">
               {salaryText}
@@ -81,13 +101,29 @@ export default function JobCard({ job }) {
       </div>
 
       {/* Skills Row */}
-      {skillsToDisplay.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {skillsToDisplay.map((skill, index) => (
-            <span
-              key={index}
-              className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full"
-            >
+      {matchScore && (matchScore.matchedSkills?.length > 0 || matchScore.missingSkills?.length > 0) && (
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {matchScore.matchedSkills?.slice(0, 4).map(skill => (
+            <span key={skill} 
+              className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">
+              ✓ {skill}
+            </span>
+          ))}
+          {matchScore.missingSkills?.slice(0, 2).map(skill => (
+            <span key={skill}
+              className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-medium">
+              ⚠ {skill}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Fallback to required skills if no match score yet */}
+      {!matchScore && job.job_required_skills?.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {job.job_required_skills.slice(0, 5).map(skill => (
+            <span key={skill}
+              className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
               {skill}
             </span>
           ))}

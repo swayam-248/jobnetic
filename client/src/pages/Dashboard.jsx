@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { fetchJobs, triggerJobFetch } from '../services/api'
+import { fetchJobs, triggerJobFetch, getMatchScoresBulk } from '../services/api'
 import JobCard from '../components/JobCard'
 
 /**
@@ -31,6 +31,10 @@ export default function Dashboard() {
   const [totalPages, setTotalPages] = useState(1)
   const JOBS_PER_PAGE = 10
 
+  // Match score state
+  const [matchScores, setMatchScores] = useState({})
+  const [scoresLoading, setScoresLoading] = useState(false)
+
   const { user } = useAuth()
 
   // On mount: load stored jobs from MongoDB with default parameters
@@ -38,20 +42,38 @@ export default function Dashboard() {
     loadJobs()
   }, [])
 
+  // Fetch match scores for the loaded list of jobs
+  const loadMatchScores = async (jobsList) => {
+    if (!jobsList || jobsList.length === 0) return
+    try {
+      setScoresLoading(true)
+      const jobIds = jobsList.map(job => job._id)
+      const { data } = await getMatchScoresBulk(jobIds)
+      setMatchScores(data.scores || {})
+    } catch (err) {
+      console.error('Match scores failed:', err.message)
+    } finally {
+      setScoresLoading(false)
+    }
+  }
+
   // FIX 2: Load jobs returns promise so caller can chain .finally() for submitting state
   const loadJobs = async (filterParams = {}, page = 1) => {
     try {
       setLoading(true)
       setError('')
       const { data } = await fetchJobs({
-        ...filterParams,
-        page,
-        limit: JOBS_PER_PAGE
+         ...filterParams,
+         page,
+         limit: JOBS_PER_PAGE
       })
-      setJobs(data.jobs || [])
+      const jobsList = data.jobs || []
+      setJobs(jobsList)
       setTotalJobs(data.total || 0)
       setTotalPages(data.totalPages || 1)
       setCurrentPage(page)
+      // Fetch match scores for loaded jobs
+      await loadMatchScores(jobsList)
       return data
     } catch (err) {
       setError('Failed to load jobs. Please try again.')
@@ -247,7 +269,12 @@ export default function Dashboard() {
         {!loading && !error && jobs.length > 0 && (
           <div className="space-y-4">
             {jobs.map((job) => (
-              <JobCard key={job.job_id || job._id} job={job} />
+              <JobCard
+                key={job.job_id || job._id}
+                job={job}
+                matchScore={matchScores[job._id]}
+                scoresLoading={scoresLoading}
+              />
             ))}
           </div>
         )}

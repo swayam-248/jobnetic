@@ -58,5 +58,12 @@ export const triggerJobFetch = () =>
 export const getJobById = (id) =>
   api.get(`/jobs/${id}`)
 
+export const getMatchScoresBulk = (jobIds) =>
+  api.post('/match/bulk', { jobIds })
+
+export const getMatchScore = (jobId) =>
+  api.get(`/match/job/${jobId}`)
+
+
 
 

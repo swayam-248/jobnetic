@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getJobById } from '../services/api'
+import { getJobById, getMatchScore } from '../services/api'
 
 export default function JobDetail() {
   const [job, setJob] = useState(null)
@@ -8,6 +8,10 @@ export default function JobDetail() {
   const [error, setError] = useState('')
   const { id } = useParams()
   const navigate = useNavigate()
+
+  // Match score state
+  const [matchScore, setMatchScore] = useState(null)
+  const [scoreLoading, setScoreLoading] = useState(false)
 
   useEffect(() => {
     const loadJob = async () => {
@@ -23,6 +27,24 @@ export default function JobDetail() {
     }
     loadJob()
   }, [id])
+
+  useEffect(() => {
+    if (job?._id) {
+      loadMatchScore()
+    }
+  }, [job])
+
+  const loadMatchScore = async () => {
+    try {
+      setScoreLoading(true)
+      const { data } = await getMatchScore(job._id)
+      setMatchScore(data)
+    } catch (err) {
+      console.error('Match score failed:', err)
+    } finally {
+      setScoreLoading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -176,6 +198,83 @@ export default function JobDetail() {
         {/* Right Column */}
         <div className="space-y-4">
           <div className="sticky top-6 space-y-4">
+            {/* Match Score Card */}
+            <div className="card">
+              <p className="text-sm font-medium text-gray-900 mb-3">
+                Your match
+              </p>
+              
+              {scoreLoading ? (
+                <div className="animate-pulse space-y-2">
+                  <div className="h-8 bg-gray-100 rounded w-1/2" />
+                  <div className="h-3 bg-gray-100 rounded w-full" />
+                  <div className="h-3 bg-gray-100 rounded w-3/4" />
+                </div>
+              ) : matchScore ? (
+                <>
+                  {/* Score circle */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`text-3xl font-medium ${
+                      matchScore.score >= 70 ? 'text-green-600' :
+                      matchScore.score >= 40 ? 'text-amber-500' :
+                      'text-gray-400'
+                    }`}>
+                      {matchScore.score}%
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700">
+                        {matchScore.score >= 70 ? 'Strong match' :
+                         matchScore.score >= 40 ? 'Partial match' :
+                         'Weak match'}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {matchScore.matchedSkills?.length || 0} of{' '}
+                        {matchScore.totalSkills} skills matched
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Matched skills */}
+                  {matchScore.matchedSkills?.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-xs font-medium text-gray-500 
+                        mb-1.5">You have</p>
+                      <div className="flex flex-wrap gap-1">
+                        {matchScore.matchedSkills.map(skill => (
+                          <span key={skill} 
+                            className="text-xs px-2 py-0.5 rounded-full 
+                              bg-green-50 text-green-700 font-medium">
+                            ✓ {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Missing skills */}
+                  {matchScore.missingSkills?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 
+                        mb-1.5">You're missing</p>
+                      <div className="flex flex-wrap gap-1">
+                        {matchScore.missingSkills.slice(0, 6).map(skill => (
+                          <span key={skill}
+                            className="text-xs px-2 py-0.5 rounded-full 
+                              bg-amber-50 text-amber-700 font-medium">
+                            ⚠ {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-xs text-gray-400">
+                  Upload your resume to see your match score
+                </p>
+              )}
+            </div>
+
             {/* Card 1 — AI Actions (coming soon) */}
             <div className="card">
               <h2 className="text-sm font-medium text-gray-900 mb-3">AI Actions</h2>
