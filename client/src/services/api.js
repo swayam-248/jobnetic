@@ -64,6 +64,23 @@ export const getMatchScoresBulk = (jobIds) =>
 export const getMatchScore = (jobId) =>
   api.get(`/match/job/${jobId}`)
 
+// Application tracker API calls
+export const saveApplication = (applicationData) =>
+  api.post('/applications', applicationData)
+
+export const getApplications = (status) =>
+  api.get('/applications', { params: status ? { status } : {} })
+
+export const updateApplication = (id, updateData) =>
+  api.patch(`/applications/${id}`, updateData)
+
+export const deleteApplication = (id) =>
+  api.delete(`/applications/${id}`)
+
+export const checkSaved = (jobUrl) =>
+  api.get('/applications/check', { params: { jobUrl } })
+
+
 
 
 

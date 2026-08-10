@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getJobById, getMatchScore } from '../services/api'
+import { getJobById, getMatchScore, saveApplication, checkSaved } from '../services/api'
 
 export default function JobDetail() {
   const [job, setJob] = useState(null)
@@ -12,6 +12,10 @@ export default function JobDetail() {
   // Match score state
   const [matchScore, setMatchScore] = useState(null)
   const [scoreLoading, setScoreLoading] = useState(false)
+
+  // Save to tracker state
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     const loadJob = async () => {
@@ -34,6 +38,14 @@ export default function JobDetail() {
     }
   }, [job])
 
+  useEffect(() => {
+    if (job?.job_apply_link) {
+      checkSaved(job.job_apply_link)
+        .then(({ data }) => setSaved(data.saved))
+        .catch(() => {})
+    }
+  }, [job])
+
   const loadMatchScore = async () => {
     try {
       setScoreLoading(true)
@@ -43,6 +55,30 @@ export default function JobDetail() {
       console.error('Match score failed:', err)
     } finally {
       setScoreLoading(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (saved || saving) return
+    try {
+      setSaving(true)
+      await saveApplication({
+        job_title: job.job_title,
+        company: job.employer_name,
+        location: `${job.job_city || ''}, ${job.job_country || ''}`,
+        salary: job.job_min_salary 
+          ? `₹${job.job_min_salary} - ₹${job.job_max_salary}` 
+          : '',
+        job_url: job.job_apply_link,
+        job_id: job._id
+      })
+      setSaved(true)
+    } catch (err) {
+      if (err.response?.status === 409) {
+        setSaved(true)
+      }
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -325,10 +361,13 @@ export default function JobDetail() {
               <h2 className="text-sm font-medium text-gray-900 mb-1">Save this job</h2>
               <p className="text-xs text-gray-400 mb-4">Track your application progress</p>
               <button
-                onClick={() => alert('Coming soon — tracker in Day 17')}
-                className="btn-ghost w-full text-sm py-2.5"
+                onClick={handleSave}
+                disabled={saved || saving}
+                className="btn-ghost w-full text-sm py-2.5 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                🔖 Save to tracker
+                {saving ? 'Saving...' : 
+                 saved ? '✓ Saved to tracker' : 
+                 '🔖 Save to tracker'}
               </button>
             </div>
           </div>
