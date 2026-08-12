@@ -47,6 +47,13 @@ export default function Login() {
         email: formData.email,
         password: formData.password,
       });
+
+      console.log('=== LOGIN RESPONSE DEBUG ===')
+      console.log('Full data:', data)
+      console.log('data.user:', data?.user)
+      console.log('onboarding_complete:', data?.user?.onboarding_complete)
+      console.log('============================')
+
       // data.user now has onboarding_complete from Supabase
       if (data?.user?.onboarding_complete === true) {
         navigate("/dashboard");

@@ -61,11 +61,18 @@ const login = async (req, res, next) => {
     }
 
     // Fetch profile from Supabase to get onboarding_complete
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('onboarding_complete')
       .eq('user_id', user._id.toString())
       .single()
+
+    console.log('=== LOGIN DEBUG ===')
+    console.log('MongoDB user._id:', user._id.toString())
+    console.log('Supabase profile data:', profile)
+    console.log('Supabase profile error:', profileError)
+    console.log('onboarding_complete value:', profile?.onboarding_complete)
+    console.log('==================')
 
     // Generate token
     const token = signToken(user._id)
