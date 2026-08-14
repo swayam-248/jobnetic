@@ -47,7 +47,6 @@ exports.saveApplication = async (req, res) => {
         location: location || '',
         salary: salary || '',
         job_url: job_url || '',
-        job_id: job_id || '',
         status: 'saved',
         notes: notes || '',
         created_at: new Date().toISOString(),
