@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import Register from "./pages/Register";
 import JobDetail from "./pages/JobDetail";
+import Tracker from "./pages/Tracker";
 
 function ProtectedRoute({ children }) {
   const { token, loading } = useAuth();
@@ -51,6 +52,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <JobDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tracker"
+          element={
+            <ProtectedRoute>
+              <Tracker />
             </ProtectedRoute>
           }
         />

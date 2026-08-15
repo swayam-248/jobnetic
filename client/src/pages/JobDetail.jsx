@@ -369,6 +369,14 @@ export default function JobDetail() {
                  saved ? '✓ Saved to tracker' : 
                  '🔖 Save to tracker'}
               </button>
+              {saved && (
+                <Link
+                  to="/tracker"
+                  className="text-xs text-brand-500 hover:underline block text-center mt-2"
+                >
+                  View in tracker →
+                </Link>
+              )}
             </div>
           </div>
         </div>

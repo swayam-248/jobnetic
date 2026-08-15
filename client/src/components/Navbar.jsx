@@ -34,8 +34,14 @@ export default function Navbar() {
           <div className="hidden md:flex md:items-center md:space-x-3">
             {token ? (
               <>
-                <Link to="/dashboard" className="text-sm font-medium text-gray-600 hover:text-brand-500">
+                <Link to="/dashboard" className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors">
                   Dashboard
+                </Link>
+                <Link
+                  to="/tracker"
+                  className="text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors"
+                >
+                  Tracker
                 </Link>
                 <button onClick={handleLogout} className="btn-ghost text-sm">
                   Log out
@@ -103,6 +109,13 @@ export default function Navbar() {
                   className="text-sm font-medium text-gray-600 hover:text-brand-500 text-center py-2"
                 >
                   Dashboard
+                </Link>
+                <Link
+                  to="/tracker"
+                  onClick={() => setIsOpen(false)}
+                  className="text-sm font-medium text-gray-600 hover:text-brand-500 text-center py-2"
+                >
+                  Tracker
                 </Link>
                 <button
                   onClick={() => {
