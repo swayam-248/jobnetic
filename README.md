@@ -261,9 +261,9 @@ notifications -> user_id, message, type, read
 - [x] Jobs dashboard with real job cards
 - [x] Job filters (role, location, type) + pagination
 - [x] Setup/docs consistency pass
-- [ ] Job detail page with AI action placeholders
-- [ ] Match score engine (resume vs job description)
-- [ ] Application tracker (Kanban board)
+- [x] Job detail page with AI action placeholders
+- [x] Match score engine (resume vs job description)
+- [x] Application tracker (Kanban board)
 - [ ] n8n Gemini pipeline (cover letter, resume tailor, gap analysis)
 - [ ] n8n email alert workflow
 - [ ] Deployment (Vercel + Render, with n8n hosted separately)
