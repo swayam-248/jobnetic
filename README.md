@@ -23,7 +23,7 @@ Jobnetic is a full-stack AI-powered job search platform built for college studen
 - **Gap Analysis** - n8n + Gemini identify missing skills for a job
 - **Application Tracker** - Kanban board to track every application stage (Saved, Applied, Interview, Offer)
 - **Daily Job Alerts** - n8n sends email when a high-match job appears
-- **Job Fetching** - Express fetches JSearch jobs and deduplicates them in MongoDB
+- **Job Fetching** - Express fetches JSearch jobs and deduplicate them in MongoDB
 
 ---
 
