@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getJobById, getMatchScore, saveApplication, checkSaved } from '../services/api'
+import { getJobById, getMatchScore, saveApplication, checkSaved, generateCoverLetter } from '../services/api'
 
 export default function JobDetail() {
   const [job, setJob] = useState(null)
@@ -16,6 +16,34 @@ export default function JobDetail() {
   // Save to tracker state
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  // Cover letter state
+  const [coverLetter, setCoverLetter] = useState('')
+  const [coverLetterLoading, setCoverLetterLoading] = useState(false)
+  const [coverLetterError, setCoverLetterError] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  const handleGenerateCoverLetter = async () => {
+    try {
+      setCoverLetterLoading(true)
+      setCoverLetterError('')
+      setCoverLetter('')
+      const { data } = await generateCoverLetter(job._id)
+      setCoverLetter(data.coverLetter)
+    } catch (err) {
+      setCoverLetterError(
+        err.response?.data?.message || 'Failed to generate cover letter'
+      )
+    } finally {
+      setCoverLetterLoading(false)
+    }
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(coverLetter)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   useEffect(() => {
     const loadJob = async () => {
@@ -311,16 +339,27 @@ export default function JobDetail() {
               )}
             </div>
 
-            {/* Card 1 — AI Actions (coming soon) */}
+            {/* Card 1 — AI Actions */}
             <div className="card">
               <h2 className="text-sm font-medium text-gray-900 mb-3">AI Actions</h2>
               <p className="text-xs text-brand-600 mb-4">✨ Powered by Gemini Flash</p>
               <div className="space-y-2 w-full">
                 <button
-                  onClick={() => alert('Coming soon — AI pipeline in Day 20')}
-                  className="btn-primary w-full text-sm py-2.5"
+                  onClick={handleGenerateCoverLetter}
+                  disabled={coverLetterLoading}
+                  className="w-full btn-primary text-sm py-2.5 
+                    disabled:opacity-70 disabled:cursor-not-allowed
+                    flex items-center justify-center gap-2"
                 >
-                  📝 Generate cover letter
+                  {coverLetterLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white 
+                        border-t-transparent rounded-full animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    '📝 Generate cover letter'
+                  )}
                 </button>
                 <button
                   onClick={() => alert('Coming soon — AI pipeline in Day 21')}
@@ -336,6 +375,65 @@ export default function JobDetail() {
                 </button>
               </div>
             </div>
+
+            {coverLetter && (
+              <div className="card border-l-4 border-brand-500 
+                rounded-l-none">
+                
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Generated Cover Letter
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Tailored for this role using your resume
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopy}
+                      className={`text-xs font-medium px-3 py-1.5 
+                        rounded-lg transition-all ${
+                        copied 
+                          ? 'bg-brand-50 text-brand-600 border border-brand-200' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {copied ? '✓ Copied!' : 'Copy'}
+                    </button>
+                    <button
+                      onClick={() => setCoverLetter('')}
+                      className="text-gray-300 hover:text-gray-500 
+                        text-lg leading-none transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+
+                {/* Cover letter text */}
+                <div className="bg-white border border-gray-100 
+                  rounded-xl p-4 max-h-72 overflow-y-auto">
+                  <p className="text-sm text-gray-700 leading-7 
+                    whitespace-pre-line">
+                    {coverLetter}
+                  </p>
+                </div>
+
+                {/* Footer tip */}
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  Review and personalize before sending
+                </p>
+
+              </div>
+            )}
+
+            {coverLetterError && (
+              <p className="text-xs text-red-500 text-center mt-2">
+                {coverLetterError}
+              </p>
+            )}
 
             {/* Card 2 — Apply */}
             <div className="card">

@@ -80,6 +80,17 @@ export const deleteApplication = (id) =>
 export const checkSaved = (jobUrl) =>
   api.get('/applications/check', { params: { jobUrl } })
 
+// AI API calls
+export const generateCoverLetter = (jobId) =>
+  api.post('/ai/cover-letter', { jobId })
+
+export const tailorResume = (jobId) =>
+  api.post('/ai/tailor', { jobId })
+
+export const analyzeGaps = (jobId) =>
+  api.post('/ai/gaps', { jobId })
+
+
 
 
 
