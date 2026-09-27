@@ -264,9 +264,9 @@ notifications -> user_id, message, type, read
 - [x] Job detail page with AI action placeholder
 - [x] Match score engine (resume vs job description)
 - [x] Application tracker (Kanban board)
-- [ ] n8n Gemini pipeline (cover letter, resume tailor, gap analysis)
+- [ ] n8n Groq pipeline (cover letter, resume tailor, gap analysis)
 - [ ] n8n email alert workflow
-- [ ] Deployment (Vercel + Render, with n8n hosted separately)
+- [x] Deployment (Vercel + Render, with n8n hosted separately)
 
 ---
 
