@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getJobById, getMatchScore, saveApplication, checkSaved, generateCoverLetter } from '../services/api'
+import {
+  getJobById,
+  getMatchScore,
+  saveApplication,
+  checkSaved,
+  generateCoverLetter,
+  tailorResume,
+  analyzeGaps,
+} from '../services/api'
 
 export default function JobDetail() {
   const [job, setJob] = useState(null)
@@ -23,6 +31,18 @@ export default function JobDetail() {
   const [coverLetterError, setCoverLetterError] = useState('')
   const [copied, setCopied] = useState(false)
 
+  // Resume tailor state
+  const [suggestions, setSuggestions] = useState('')
+  const [tailorLoading, setTailorLoading] = useState(false)
+  const [tailorError, setTailorError] = useState('')
+  const [copiedSuggestions, setCopiedSuggestions] = useState(false)
+
+  // Gap analysis state
+  const [analysis, setAnalysis] = useState('')
+  const [gapsLoading, setGapsLoading] = useState(false)
+  const [gapsError, setGapsError] = useState('')
+  const [copiedAnalysis, setCopiedAnalysis] = useState(false)
+
   const handleGenerateCoverLetter = async () => {
     try {
       setCoverLetterLoading(true)
@@ -43,6 +63,40 @@ export default function JobDetail() {
     navigator.clipboard.writeText(coverLetter)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  // Handle resume tailoring
+  const handleTailorResume = async () => {
+    try {
+      setTailorLoading(true)
+      setTailorError('')
+      setSuggestions('')
+      const { data } = await tailorResume(job._id)
+      setSuggestions(data.suggestions)
+    } catch (err) {
+      setTailorError(
+        err.response?.data?.message || 'Failed to generate suggestions'
+      )
+    } finally {
+      setTailorLoading(false)
+    }
+  }
+
+  // Handle skill gap analysis
+  const handleAnalyzeGaps = async () => {
+    try {
+      setGapsLoading(true)
+      setGapsError('')
+      setAnalysis('')
+      const { data } = await analyzeGaps(job._id)
+      setAnalysis(data.analysis)
+    } catch (err) {
+      setGapsError(
+        err.response?.data?.message || 'Failed to generate analysis'
+      )
+    } finally {
+      setGapsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -362,16 +416,38 @@ export default function JobDetail() {
                   )}
                 </button>
                 <button
-                  onClick={() => alert('Coming soon — AI pipeline in Day 21')}
-                  className="btn-ghost w-full text-sm py-2.5"
+                  onClick={handleTailorResume}
+                  disabled={tailorLoading}
+                  className="w-full btn-ghost text-sm py-2.5
+                    disabled:opacity-70 disabled:cursor-not-allowed
+                    flex items-center justify-center gap-2"
                 >
-                  🔄 Tailor my resume
+                  {tailorLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-gray-400
+                        border-t-transparent rounded-full animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    '🔄 Tailor my resume'
+                  )}
                 </button>
                 <button
-                  onClick={() => alert('Coming soon — AI pipeline in Day 21')}
-                  className="btn-ghost w-full text-sm py-2.5"
+                  onClick={handleAnalyzeGaps}
+                  disabled={gapsLoading}
+                  className="w-full btn-ghost text-sm py-2.5
+                    disabled:opacity-70 disabled:cursor-not-allowed
+                    flex items-center justify-center gap-2"
                 >
-                  🎯 Analyze skill gaps
+                  {gapsLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-gray-400
+                        border-t-transparent rounded-full animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    '🎯 Analyze skill gaps'
+                  )}
                 </button>
               </div>
             </div>
@@ -432,6 +508,120 @@ export default function JobDetail() {
             {coverLetterError && (
               <p className="text-xs text-red-500 text-center mt-2">
                 {coverLetterError}
+              </p>
+            )}
+
+            {/* Resume Tailor Result */}
+            {suggestions && (
+              <div className="card border-l-4 border-blue-400 
+                rounded-l-none">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Resume Suggestions
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Tailored improvements for this role
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(suggestions)
+                        setCopiedSuggestions(true)
+                        setTimeout(() => setCopiedSuggestions(false), 2000)
+                      }}
+                      className={`text-xs font-medium px-3 py-1.5 
+                        rounded-lg transition-all ${
+                        copiedSuggestions
+                          ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {copiedSuggestions ? '✓ Copied!' : 'Copy'}
+                    </button>
+                    <button
+                      onClick={() => setSuggestions('')}
+                      className="text-gray-300 hover:text-gray-500 
+                        text-lg leading-none transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-100 
+                  rounded-xl p-4 max-h-72 overflow-y-auto">
+                  <p className="text-sm text-gray-700 leading-7 
+                    whitespace-pre-line">
+                    {suggestions}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  Apply these changes to your resume before applying
+                </p>
+              </div>
+            )}
+
+            {tailorError && (
+              <p className="text-xs text-red-500 text-center mt-2">
+                {tailorError}
+              </p>
+            )}
+
+            {/* Gap Analysis Result */}
+            {analysis && (
+              <div className="card border-l-4 border-amber-400 
+                rounded-l-none">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Skill Gap Analysis
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      What you have vs what they need
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(analysis)
+                        setCopiedAnalysis(true)
+                        setTimeout(() => setCopiedAnalysis(false), 2000)
+                      }}
+                      className={`text-xs font-medium px-3 py-1.5 
+                        rounded-lg transition-all ${
+                        copiedAnalysis
+                          ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {copiedAnalysis ? '✓ Copied!' : 'Copy'}
+                    </button>
+                    <button
+                      onClick={() => setAnalysis('')}
+                      className="text-gray-300 hover:text-gray-500 
+                        text-lg leading-none transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-100 
+                  rounded-xl p-4 max-h-72 overflow-y-auto">
+                  <p className="text-sm text-gray-700 leading-7 
+                    whitespace-pre-line">
+                    {analysis}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  Focus on quick wins to improve your match score
+                </p>
+              </div>
+            )}
+
+            {gapsError && (
+              <p className="text-xs text-red-500 text-center mt-2">
+                {gapsError}
               </p>
             )}
 

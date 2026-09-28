@@ -69,7 +69,51 @@ exports.generateCoverLetter = async (req, res) => {
  * @access Private
  */
 exports.tailorResume = async (req, res) => {
-  res.json({ message: 'Coming soon' })
+  try {
+    const userId = req.user._id.toString()
+    const { jobId } = req.body
+
+    if (!jobId) {
+      return res.status(400).json({ message: 'jobId is required' })
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('parsed_resume_text')
+      .eq('user_id', userId)
+      .single()
+
+    if (profileError || !profile?.parsed_resume_text) {
+      return res.status(404).json({ 
+        message: 'Resume not found. Please upload your resume first.' 
+      })
+    }
+
+    const job = await Job.findById(jobId).lean()
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' })
+    }
+
+    const webhookUrl = process.env.N8N_RESUME_TAILOR_WEBHOOK
+    const response = await axios.post(webhookUrl, {
+      jobTitle: job.job_title,
+      company: job.employer_name,
+      jobDescription: job.job_description?.substring(0, 500),
+      resumeText: profile.parsed_resume_text?.substring(0, 1000)
+    }, { timeout: 30000 })
+
+    const suggestions = response.data?.suggestions
+    if (!suggestions) {
+      return res.status(500).json({ 
+        message: 'Failed to generate suggestions' 
+      })
+    }
+
+    res.json({ suggestions })
+  } catch (err) {
+    console.error('Resume tailor error:', err.message)
+    res.status(500).json({ message: err.message })
+  }
 }
 
 /**
@@ -78,5 +122,50 @@ exports.tailorResume = async (req, res) => {
  * @access Private
  */
 exports.analyzeGaps = async (req, res) => {
-  res.json({ message: 'Coming soon' })
+  try {
+    const userId = req.user._id.toString()
+    const { jobId } = req.body
+
+    if (!jobId) {
+      return res.status(400).json({ message: 'jobId is required' })
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('parsed_resume_text')
+      .eq('user_id', userId)
+      .single()
+
+    if (profileError || !profile?.parsed_resume_text) {
+      return res.status(404).json({ 
+        message: 'Resume not found. Please upload your resume first.' 
+      })
+    }
+
+    const job = await Job.findById(jobId).lean()
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' })
+    }
+
+    const webhookUrl = process.env.N8N_GAP_ANALYSIS_WEBHOOK
+    const response = await axios.post(webhookUrl, {
+      jobTitle: job.job_title,
+      company: job.employer_name,
+      jobDescription: job.job_description?.substring(0, 500),
+      resumeText: profile.parsed_resume_text?.substring(0, 1000)
+    }, { timeout: 30000 })
+
+    const analysis = response.data?.analysis
+    if (!analysis) {
+      return res.status(500).json({ 
+        message: 'Failed to generate analysis' 
+      })
+    }
+
+    res.json({ analysis })
+  } catch (err) {
+    console.error('Gap analysis error:', err.message)
+    res.status(500).json({ message: err.message })
+  }
 }
+
